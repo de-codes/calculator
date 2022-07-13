@@ -2,6 +2,7 @@ package calculator_test
 
 import (
 	"calculator"
+	"math"
 	"testing"
 )
 
@@ -81,6 +82,31 @@ func TestDivide(t *testing.T) {
 	}
 }
 
+func TestSqrt(t *testing.T) {
+	t.Parallel()
+	type testCase struct {
+		input float64
+		want  float64
+	}
+	testCases := []testCase{
+		{input: 4, want: 2},
+		{input: 2, want: 1.41421356237},
+		{input: 25, want: 5},
+		{input: 1.4, want: 1.2},
+	}
+
+	for _, tc := range testCases {
+		got, err := calculator.Sqrt(tc.input)
+
+		if err != nil {
+			t.Fatalf("Sqrt(%f): want no error for valid input, got %v", tc.input, err)
+		}
+		if !closeEnough(tc.want, got, 0.1) {
+			t.Errorf("Sqrt(%f):want %f , got %f", tc.input, tc.want, got)
+		}
+	}
+}
+
 func TestDivideInvalid(t *testing.T) {
 	t.Parallel()
 
@@ -89,4 +115,18 @@ func TestDivideInvalid(t *testing.T) {
 	if err == nil {
 		t.Errorf("Divide(1,0): want error for invalid input, got %v", err)
 	}
+}
+
+func TestSqrtInvalid(t *testing.T) {
+	t.Parallel()
+
+	_, err := calculator.Sqrt(-1)
+
+	if err == nil {
+		t.Errorf("Sqrt(-1): want error for invalid input, got %v", err)
+	}
+}
+
+func closeEnough(a, b, tolerance float64) bool {
+	return math.Abs(a-b) <= tolerance
 }
